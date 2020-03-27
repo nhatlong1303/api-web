@@ -1,26 +1,116 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
+import { Route, Router, Switch, BrowserRouter } from 'react-router-dom';
+import { PrivateRoute } from './routers/PrivateRoute';
+import Login from './components/login/login';
+import { history } from './history';
+import routes from './routers/routers';
+import LayoutHeader from './components/layout/header';
+import LayoutFooter from './components/layout/footer';
+// import LeftPanel from './components/layout/leftpanel';
+// import { Row, } from 'reactstrap';
+import ScrollButton from './components/layout/ScrollButton';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as HomeActions from './actions/homeActions';
+import CommonMenuParent from './components/home/menu';
+class App extends Component {
+  constructor(props) {
+    super(props)
+
+    history.listen((location, action) => {
+      // console.log("Hello Khanh");
+      // console.log(location);
+      // console.log(action);
+      // console.log(this.props.match.url);
+      // console.log(this.props.location.pathname);
+
+    });
+    this.state = {
+      listCategoryLV0: [],
+      listCategoryAll:[]
+    }
+    localStorage.removeItem('reload');
+  }
+
+  toggle = (toggle) => {
+    this.setState({
+      toggle: toggle
+    })
+  }
+  componentDidMount() {
+    this.getCateGoryLV0();
+    this.getCateGoryAll();
+  }
+  getCateGoryLV0 = () => {
+    let param = {
+      categoryParent: 0
+    }
+    this.props.HomeActions.categoryLV0(param, (error, data) => {
+      if (data) {
+        this.setState({
+          listCategoryLV0: data.category
+        })
+      } else {
+        console.log(error)
+      };
+    });
+  }
+  getCateGoryAll = () => {
+    this.props.HomeActions.categoryAll(null, (error, data) => {
+      if (data) {
+        this.setState({
+          listCategoryAll: data.category
+        })
+      } else {
+        console.log(error)
+      };
+    });
+  }
+  render() {
+    return (
+      <BrowserRouter >
+        <Router history={history}>
+          {localStorage.getItem('TOKEN') ?
+            <div>
+              <LayoutHeader />
+              <CommonMenuParent listCategoryLV0={this.state.listCategoryLV0} listCategoryAll={this.state.listCategoryAll} />
+              <div >
+                <Switch>
+                  {this.showRoute(routes)}
+                </Switch>
+              </div>
+              <LayoutFooter />
+              <ScrollButton scrollStepInPx="50" delayInMs="16.66" />
+            </div> : <Switch>
+              <Route path="/login">
+                <Login />
+              </Route>
+              {this.showRoute(routes)}
+            </Switch>}
+        </Router>
+      </BrowserRouter>
+    );
+  }
+  showRoute = (routes) => {
+    var result = null;
+    if (routes.length > 0) {
+      result = routes.map((route, index) => {
+        return (
+          <PrivateRoute key={index} path={route.path} exact={route.exact} component={route.main} />
+        )
+      });
+    }
+    return result;
+  }
 }
-
-export default App;
+const mapStateToProps = (state) => {
+  return {
+  }
+}
+const mapDispatchToProps = (dispatch) => {
+  return {
+    HomeActions: bindActionCreators(HomeActions, dispatch)
+  }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(App);
