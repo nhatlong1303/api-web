@@ -19,12 +19,21 @@ export function categoryAll(param, cb) {
             .then(result => {
                 if (result && result.code === 200) {
                     if (cb) cb(null, result.data);
+                    dispatch(listCategoryAll(result.data))
                 } else {
                     if (cb) cb(result.data, null);
+                    dispatch(listCategoryAll(result.data))
                 }
             });
     };
 }
+function listCategoryAll(data) {
+    return {
+        type: Types.CATEGORYALL,
+        data
+    }
+}
+
 export function products(param, cb) {
     return (dispatch) => {
         Api.post('/products/category', param)

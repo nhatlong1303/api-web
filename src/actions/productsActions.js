@@ -13,3 +13,15 @@ export function onDelete(param, cb) {
             });
     };
 }
+export function onInsert(param, cb) {
+    return (dispatch) => {
+        Api.post('/products/insert', param)
+            .then(result => {
+                if(result && result.code===200 ) {
+                    if(cb) cb(null, result);
+                } else {
+                    if(cb) cb(result, null);
+                }
+            });
+    };
+}

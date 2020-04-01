@@ -50,7 +50,7 @@ class menu extends Component {
                                                 key={index1}
                                                 popupOffset={[10, 15]}
                                             >
-                                                <MenuItem key={item1.id}><Link  to={`/category/`+item1.id+'/'+item.nameDev+'/'+item1.nameDev} >{item1.categoryName}</Link></MenuItem>
+                                                <MenuItem key={item1.id}><Link  to={`/category/`+item.id+'-'+item1.id+'/'+item.nameDev+'/'+item1.nameDev} >{item1.categoryName}</Link></MenuItem>
                                                 <Divider />
                                                 {listCategoryAll.map((item2, index2) => {
                                                     if (item2.categoryParent === item1.id) {
@@ -62,7 +62,7 @@ class menu extends Component {
                                                                 key={index2}
                                                                 popupOffset={[10, 15]}
                                                             >
-                                                                <MenuItem key={item2.id}><Link to={`/category/`+item2.id+'/'+item.nameDev+'/'+item1.nameDev+'/'+item2.nameDev} >{item2.categoryName}</Link></MenuItem>
+                                                                <MenuItem key={item2.id}><Link to={`/category/`+item.id+'-'+item1.id+'-'+item2.id+'/'+item.nameDev+'/'+item1.nameDev+'/'+item2.nameDev} >{item2.categoryName}</Link></MenuItem>
                                                                 <Divider />
                                                             </SubMenu>
                                                         )

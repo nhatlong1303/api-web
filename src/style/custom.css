@@ -475,6 +475,9 @@ a{
     font-weight: lighter;
     color: #898989;
 }
+.pdt10{
+    padding-top: 10px;
+}
 .footer-des span{
     font-weight: bolder;
 }
