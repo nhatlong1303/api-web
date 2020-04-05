@@ -25,3 +25,16 @@ export function onInsert(param, cb) {
             });
     };
 }
+export function onUpdate(param, cb) {
+    return (dispatch) => {
+        Api.post('/products/update', param)
+            .then(result => {
+                if(result && result.code===200 ) {
+                    if(cb) cb(null, result);
+                } else {
+                    if(cb) cb(result, null);
+                }
+            });
+    };
+}
+

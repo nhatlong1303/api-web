@@ -19,6 +19,7 @@ class listProducts extends Component {
             listCategoryLevel2: [],
             listCategoryLevel3: [],
 
+            productID: '',
             productName: '',
             quantity: '',
             description: '',
@@ -26,7 +27,9 @@ class listProducts extends Component {
             Level1: '',
             Level2: '',
             Level3: '',
-            image: ''
+            image: '',
+            created_at: '',
+            isUpdate: false
         }
     }
 
@@ -35,7 +38,7 @@ class listProducts extends Component {
             Level1: this.props.match.params.id.split('-')[0], Level2: this.props.match.params.id.split('-')[1] !== undefined ? this.props.match.params.id.split('-')[1] : '',
             Level3: this.props.match.params.id.split('-')[2] !== undefined ? this.props.match.params.id.split('-')[2] : ''
         });
-        this.getListProducts(this.props.match.params.id.split('-')[0],this.props.match.params.id.split('-')[1] , this.props.match.params.id.split('-')[2]);
+        this.getListProducts(this.props.match.params.id.split('-')[0], this.props.match.params.id.split('-')[1], this.props.match.params.id.split('-')[2]);
         this.getCateGoryAll();
     }
     getCateGoryAll = () => {
@@ -71,11 +74,11 @@ class listProducts extends Component {
         });
     }
 
-    getListProducts = (lv1,lv2,lv3) => {
+    getListProducts = (lv1, lv2, lv3) => {
         let param = {
-            Level1:lv1,
-            Level2:lv2,
-            Level3:lv3
+            Level1: lv1,
+            Level2: lv2,
+            Level3: lv3
         }
         this.props.HomeActions.products(param, (error, data) => {
             if (data) {
@@ -91,7 +94,7 @@ class listProducts extends Component {
     componentDidUpdate(nextProps) {
         if (this.props.isLoading) {
             let id = parseInt(this.props.match.params.id.split('-')[2] !== undefined ? this.props.match.params.id.split('-')[2] : this.props.match.params.id.split('-')[1] !== undefined ? this.props.match.params.id.split('-')[1] : this.props.match.params.id.split('-')[0]);
-            this.getListProducts(this.props.match.params.id.split('-')[0],this.props.match.params.id.split('-')[1] , this.props.match.params.id.split('-')[2]);
+            this.getListProducts(this.props.match.params.id.split('-')[0], this.props.match.params.id.split('-')[1], this.props.match.params.id.split('-')[2]);
             let array = [];
             let array1 = [];
             this.props.CATEGORYALL.length > 0 && this.props.CATEGORYALL.map((item) => {
@@ -154,6 +157,29 @@ class listProducts extends Component {
 
 
     }
+    onEdit = (item) => {
+        let array1 = [];
+        this.props.CATEGORYALL.length > 0 && this.props.CATEGORYALL.map((item1) => {
+            if (item1.categoryParent === parseInt(item.data.Level2)) {
+                array1.push(item1)
+            }
+            return array1;
+        })
+        this.setState({
+            OpenModal: true,
+            productID: item.data.id,
+            productName: item.data.productName,
+            quantity: item.data.quantity,
+            description: item.data.description,
+            price: item.data.price,
+            Level2: item.data.Level2,
+            Level3: item.data.Level3,
+            image: item.data.image,
+            created_at: item.data.created_at,
+            listCategoryLevel3: array1,
+            isUpdate: true
+        })
+    }
     cellRender = (item) => {
         return (
             <Row style={{ paddingLeft: '10px' }}>
@@ -161,6 +187,7 @@ class listProducts extends Component {
                     <Button icon="edit"
                         type="success"
                         text="Edit"
+                        onClick={() => this.onEdit(item)}
                     />
                 </div>
                 <div className="dx-field" style={{ width: '50%', textAlign: 'center' }}>
@@ -187,16 +214,19 @@ class listProducts extends Component {
         return <img alt="" style={{ width: '50px', height: '50px' }} src={item.value} />
     }
     onOpenModal = () => {
+        let id = parseInt(this.props.match.params.id.split('-')[2] !== undefined ? this.props.match.params.id.split('-')[2] : this.props.match.params.id.split('-')[1] !== undefined ? this.props.match.params.id.split('-')[1] : this.props.match.params.id.split('-')[0]);
         this.setState({
             OpenModal: !this.state.OpenModal,
             productName: '',
             quantity: '',
             description: '',
             price: '',
-            Level1: this.state.Level1,
-            Level2: this.state.Level2,
-            Level3: this.state.Level3,
+            Level1: id,
+            Level2: this.props.match.params.id.split('-')[1] !== undefined ? this.props.match.params.id.split('-')[1] : '',
+            Level3: this.props.match.params.id.split('-')[2] !== undefined ? this.props.match.params.id.split('-')[2] : '',
             image: '',
+            created_at: '',
+            isUpdate: false
         })
     }
 
@@ -215,7 +245,7 @@ class listProducts extends Component {
             }
             return array
         })
-        this.setState({ Level2: target.value, listCategoryLevel3: array })
+        this.setState({ Level2: target.value, listCategoryLevel3: array,Level3:'' })
     }
     onClickFile = () => {
         document.getElementById('file').click();
@@ -249,36 +279,55 @@ class listProducts extends Component {
             Level1: this.state.Level1,
             Level2: this.state.Level2,
             Level3: this.state.Level3,
-            created_at: moment().format("YYYY/MM/DD HH:mm:ss"),
-            image: this.state.image
+            created_at: this.state.isUpdate ? this.state.created_at : moment().format("YYYY/MM/DD HH:mm:ss"),
+            updated_at: moment().format("YYYY/MM/DD HH:mm:ss"),
+            image: this.state.image,
+            id: this.state.productID
         }
-        this.props.ProductsActions.onInsert(param, (error, data) => {
-            if (data) {
-                if (data.code === 200 && data.success) {
-                    swal("success! Thêm dữ liệu thành công", {
-                        icon: "success",
-                    })
-                    this.setState({
-                        productName: '',
-                        quantity: '',
-                        description: '',
-                        price: '',
-                        Level1: this.state.Level1,
-                        Level2: this.state.Level2,
-                        Level3: this.state.Level3,
-                        image: '',
-                        OpenModal: false
-                    })
-                    this.getListProducts(this.props.match.params.id.split('-')[0],this.props.match.params.id.split('-')[1] , this.props.match.params.id.split('-')[2]);
+        if (!this.state.isUpdate) {
+            this.props.ProductsActions.onInsert(param, (error, data) => {
+                if (data) {
+                    if (data.code === 200 && data.success) {
+                        swal({
+                            title: "Success",
+                            text: "Thêm dữ liệu thành công!",
+                            icon: "success",
+                        }).then(() => {
+                            this.onOpenModal();
+                            this.getListProducts(this.props.match.params.id.split('-')[0], this.props.match.params.id.split('-')[1], this.props.match.params.id.split('-')[2]);
+                        });
+                    } else {
+                        swal("Warning! Thêm dữ liệu thất bại", {
+                            icon: "warning",
+                        });
+                    };
                 } else {
-                    swal("Warning! Thêm dữ liệu thất bại", {
-                        icon: "warning",
-                    });
+                    console.log(error)
                 };
-            } else {
-                console.log(error)
-            };
-        });
+            });
+        } else {
+            this.props.ProductsActions.onUpdate(param, (error, data) => {
+                if (data) {
+                    if (data.code === 200 && data.success) {
+                        swal({
+                            title: "Success",
+                            text: "Cập nhật dữ liệu thành công!",
+                            icon: "success",
+                        }).then(() => {
+                            this.onOpenModal();
+                            this.getListProducts(this.props.match.params.id.split('-')[0], this.props.match.params.id.split('-')[1], this.props.match.params.id.split('-')[2]);
+                        });
+
+                    } else {
+                        swal("Warning! Update dữ liệu thất bại", {
+                            icon: "warning",
+                        });
+                    };
+                } else {
+                    console.log(error)
+                };
+            });
+        }
 
     }
     onSubmit = () => {
@@ -297,7 +346,7 @@ class listProducts extends Component {
                                         <Label className="pdt10">Tên SP</Label>
                                     </div>
                                     <div className="col-8 " >
-                                        <Input required invalid={this.state.productName !== "" ? false : true} valid={this.state.productName !== "" ? true : false} type="text" onChange={this.onChangeData} name="productName" id="productName" placeholder="Tên sản phẩm" />
+                                        <Input required invalid={this.state.productName !== "" ? false : true} valid={this.state.productName !== "" ? true : false} type="text" onChange={this.onChangeData} name="productName" id="productName" placeholder="Tên sản phẩm" value={this.state.productName} />
                                     </div>
                                 </Row>
                                 <Row className="col-4">
@@ -305,7 +354,7 @@ class listProducts extends Component {
                                         <Label className="pdt10">Số lượng</Label>
                                     </div>
                                     <div className="col-8 " >
-                                        <Input required invalid={this.state.quantity !== "" ? false : true} valid={this.state.quantity !== "" ? true : false} type="number" onChange={this.onChangeData} name="quantity" id="quantity" placeholder="Số lượng" />
+                                        <Input required invalid={this.state.quantity !== "" ? false : true} valid={this.state.quantity !== "" ? true : false} type="number" onChange={this.onChangeData} name="quantity" id="quantity" placeholder="Số lượng" value={this.state.quantity} />
                                     </div>
                                 </Row>
                                 <Row className="col-4">
@@ -313,7 +362,7 @@ class listProducts extends Component {
                                         <Label className="pdt10">Đơn giá</Label>
                                     </div>
                                     <div className="col-8 " >
-                                        <Input required invalid={this.state.price !== "" ? false : true} valid={this.state.price !== "" ? true : false} type="number" onChange={this.onChangeData} name="price" id="price" placeholder="Đơn giá" />
+                                        <Input required invalid={this.state.price !== "" ? false : true} valid={this.state.price !== "" ? true : false} type="number" onChange={this.onChangeData} name="price" id="price" placeholder="Đơn giá" value={this.state.price} />
                                     </div>
                                 </Row>
 
@@ -340,12 +389,11 @@ class listProducts extends Component {
                                         <Label className="pdt10">Cấp 2</Label>
                                     </div>
                                     <div className="col-8 " >
-                                        <Input type="select" name="Level2" id="Level2" onChange={this.onChangeLevel2} disabled={this.props.match.params.id.split('-')[1] !== undefined ? true : false}  >
-                                            {this.props.match.params.id.split('-')[1] === undefined &&
+                                        <Input required type="select" name="Level2" id="Level2" value={this.state.Level2} onChange={this.onChangeLevel2} disabled={this.props.match.params.id.split('-')[1] !== undefined ? true : false}  >
+                                            {this.props.match.params.id.split('-')[1] === undefined && this.state.Level2 === '' &&
                                                 <option value={''} >----</option>}
                                             {this.state.listCategoryLevel2.length > 0 && this.state.listCategoryLevel2.map((item, index) =>
-                                                <option key={index} value={item.id}>{item.categoryName}</option>
-                                            )}
+                                                <option key={index} value={item.id} >{item.categoryName}</option>)}
                                         </Input>
                                     </div>
                                 </Row>
@@ -354,7 +402,9 @@ class listProducts extends Component {
                                         <Label className="pdt10">Cấp 3</Label>
                                     </div>
                                     <div className="col-8 " >
-                                        <Input type="select" name="Level3" id="Level3" onChange={this.onChangeData} disabled={this.props.match.params.id.split('-')[2] !== undefined ? true : false} >
+                                        <Input required={this.state.listCategoryLevel3.length > 0 ? true : false} type="select" name="Level3" id="Level3" value={this.state.Level3} onChange={this.onChangeData} disabled={this.props.match.params.id.split('-')[2] !== undefined ? true : false} >
+                                            {this.props.match.params.id.split('-')[2] === undefined && this.state.Level3 === '' &&
+                                                <option value={''} >----</option>}
                                             {this.state.listCategoryLevel3.length > 0 && this.state.listCategoryLevel3.map((item, index) =>
                                                 <option key={index} value={item.id}>{item.categoryName}</option>
                                             )}
@@ -368,7 +418,7 @@ class listProducts extends Component {
                                         <Label className="pdt10">Mô tả</Label>
                                     </div>
                                     <div className="col-8 " >
-                                        <Input invalid={this.state.description !== "" ? false : true} valid={this.state.description !== "" ? true : false} required type="textarea" name="description" id="description" onChange={this.onChangeData} />
+                                        <Input invalid={this.state.description !== "" ? false : true} valid={this.state.description !== "" ? true : false} value={this.state.description} required type="textarea" name="description" id="description" onChange={this.onChangeData} />
                                     </div>
                                 </Row>
                                 <Row className="col-4">
@@ -380,7 +430,7 @@ class listProducts extends Component {
                                         <button type="button" id="btnBgStory" className="btn btn-primary " onClick={this.onClickFile}>
                                             <i className="fas fa-image"></i> Pictures </button>
                                     </div>
-                                    <div className="col-4">
+                                    <div className="col-4 ">
                                         <img alt="" src={this.state.image} style={{ width: '100px', height: '100px' }} />
                                     </div>
                                 </Row>
@@ -391,7 +441,7 @@ class listProducts extends Component {
                     <ModalFooter>
                         <Button icon="check"
                             type="success"
-                            text="Save"
+                            text={this.state.isUpdate ? 'Update' : 'Save'}
                             onClick={this.onSubmit}
                         />
                         <Button icon="remove"
