@@ -304,7 +304,7 @@ class listProducts extends Component {
                 } else {
                     console.log(error)
                 };
-            });
+            }); 
         } else {
             this.props.ProductsActions.onUpdate(param, (error, data) => {
                 if (data) {
