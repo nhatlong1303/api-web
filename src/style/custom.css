@@ -1202,3 +1202,9 @@ body{
     width: 10px;
     overflow: hidden;
 }
+.editorDescription {
+    width: 96%;
+}
+.container-grid{
+    padding: '10px 10px 10px 10px ' !important
+}

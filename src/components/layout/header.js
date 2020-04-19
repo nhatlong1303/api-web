@@ -3,6 +3,8 @@ import { Row, Col } from 'reactstrap';
 import { bindActionCreators } from "redux";
 import { connect } from 'react-redux';
 import * as loginActions from '../../actions/login-actions';
+import { Link } from 'react-router-dom';
+import { Button } from 'reactstrap';
 class header extends Component {
     constructor(props) {
         super(props)
@@ -17,7 +19,7 @@ class header extends Component {
             hasMore: true,
             //items: Array.from({ length: 20 })
         }
-       
+
         this.logoutTimeout();
 
     }
@@ -42,13 +44,9 @@ class header extends Component {
                     <Col xs="12" sm="12" md="12" lg="12" xl="12">
                         <form>
                             <Row className="height60" >
-                                <Col xs="6" sm="6" md="6" lg="6" xl="9">
-                                    <Row className="mgt15 " style={{ 'marginLeft': '4px' }} >
-                                        <span className="fa fa-search fontsize25 colorwhite"></span>
-                                        <Col xs="10" sm="10" md="10" lg="10" xl="11">
-                                            <input className=" fullwidth no-boder colorwhite" placeholder="Search..." name="Search"
-                                                style={{ 'background': 'transparent', 'outline': 'none' }} />
-                                        </Col>
+                                <Col xs="6" sm="6" md="6" lg="6" xl="9" >
+                                    <Row className="mgt15  col-3 pdl20 align-middle">
+                                        <Link to='/categories'> <Button outline  color="warning">categories</Button>{' '}</Link>
                                     </Row>
                                 </Col>
                                 <Col xs="6" sm="6" md="6" lg="6" xl="3" className="pd0">

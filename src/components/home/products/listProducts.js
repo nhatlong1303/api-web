@@ -8,6 +8,9 @@ import { Button } from 'devextreme-react';
 import { Row, } from 'react-bootstrap';
 import swal from 'sweetalert';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input, } from 'reactstrap';
+// import ReactQuill from 'react-quill';
+import CKEditor from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 const moment = require('moment');
 class listProducts extends Component {
     constructor(props) {
@@ -29,8 +32,34 @@ class listProducts extends Component {
             Level3: '',
             image: '',
             created_at: '',
+            discount: '',
             isUpdate: false
         }
+        this.modules = {
+            toolbar: [
+                [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+                [{ size: [] }],
+                ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' },
+                { 'indent': '-1' }, { 'indent': '+1' }],
+                ['link', 'image', 'video'],
+                ['clean']
+            ],
+            clipboard: {
+                // toggle to add extra line breaks when pasting HTML:
+                matchVisual: false,
+            }
+        };
+
+        this.formats = [
+            'font',
+            'size',
+            'bold', 'italic', 'underline', 'strike', 'blockquote',
+            'list', 'bullet', 'indent',
+            'link', 'image', 'video',
+            'align',
+            'color', 'background'
+        ];
     }
 
     componentDidMount() {
@@ -57,11 +86,14 @@ class listProducts extends Component {
                         if (item.id === parseInt(this.props.match.params.id.split('-')[2])) {
                             array1.push(item)
                         }
+                        return array1;
                     } else {
                         if (item.categoryParent === parseInt(this.props.match.params.id.split('-')[1])) {
                             array1.push(item)
                         }
+                        return array1;
                     }
+                    
                 })
                 this.setState({
                     listCategory: data.category,
@@ -93,7 +125,7 @@ class listProducts extends Component {
     }
     componentDidUpdate(nextProps) {
         if (this.props.isLoading) {
-            let id = parseInt(this.props.match.params.id.split('-')[2] !== undefined ? this.props.match.params.id.split('-')[2] : this.props.match.params.id.split('-')[1] !== undefined ? this.props.match.params.id.split('-')[1] : this.props.match.params.id.split('-')[0]);
+            // let id = parseInt(this.props.match.params.id.split('-')[2] !== undefined ? this.props.match.params.id.split('-')[2] : this.props.match.params.id.split('-')[1] !== undefined ? this.props.match.params.id.split('-')[1] : this.props.match.params.id.split('-')[0]);
             this.getListProducts(this.props.match.params.id.split('-')[0], this.props.match.params.id.split('-')[1], this.props.match.params.id.split('-')[2]);
             let array = [];
             let array1 = [];
@@ -153,9 +185,6 @@ class listProducts extends Component {
                     swal("Your imaginary file is safe!");
                 }
             });
-
-
-
     }
     onEdit = (item) => {
         let array1 = [];
@@ -176,6 +205,7 @@ class listProducts extends Component {
             Level3: item.data.Level3,
             image: item.data.image,
             created_at: item.data.created_at,
+            discount: item.data.discount,
             listCategoryLevel3: array1,
             isUpdate: true
         })
@@ -226,6 +256,7 @@ class listProducts extends Component {
             Level3: this.props.match.params.id.split('-')[2] !== undefined ? this.props.match.params.id.split('-')[2] : '',
             image: '',
             created_at: '',
+            discount: '',
             isUpdate: false
         })
     }
@@ -245,7 +276,7 @@ class listProducts extends Component {
             }
             return array
         })
-        this.setState({ Level2: target.value, listCategoryLevel3: array,Level3:'' })
+        this.setState({ Level2: target.value, listCategoryLevel3: array, Level3: '' })
     }
     onClickFile = () => {
         document.getElementById('file').click();
@@ -269,6 +300,10 @@ class listProducts extends Component {
             }
         }
     }
+    rteChange = (content, delta, source, editor) => {
+        let description = editor.getHTML();
+        this.setState({ description: description })
+    }
     onSave = (event) => {
         event.preventDefault();
         let param = {
@@ -282,6 +317,7 @@ class listProducts extends Component {
             created_at: this.state.isUpdate ? this.state.created_at : moment().format("YYYY/MM/DD HH:mm:ss"),
             updated_at: moment().format("YYYY/MM/DD HH:mm:ss"),
             image: this.state.image,
+            discount: this.state.discount,
             id: this.state.productID
         }
         if (!this.state.isUpdate) {
@@ -304,7 +340,7 @@ class listProducts extends Component {
                 } else {
                     console.log(error)
                 };
-            }); 
+            });
         } else {
             this.props.ProductsActions.onUpdate(param, (error, data) => {
                 if (data) {
@@ -330,6 +366,7 @@ class listProducts extends Component {
         }
 
     }
+
     onSubmit = () => {
         document.getElementById('submit').click();
     }
@@ -341,7 +378,7 @@ class listProducts extends Component {
                     <ModalBody style={{ margin: '10px 10px 10px 10px' }}>
                         <Form onSubmit={this.onSave}>
                             <FormGroup row>
-                                <Row className="col-4">
+                                <Row className="col-sm-12 col-md-4">
                                     <div className="col-4">
                                         <Label className="pdt10">Tên SP</Label>
                                     </div>
@@ -349,7 +386,7 @@ class listProducts extends Component {
                                         <Input required invalid={this.state.productName !== "" ? false : true} valid={this.state.productName !== "" ? true : false} type="text" onChange={this.onChangeData} name="productName" id="productName" placeholder="Tên sản phẩm" value={this.state.productName} />
                                     </div>
                                 </Row>
-                                <Row className="col-4">
+                                <Row className="col-sm-12 col-md-4">
                                     <div className="col-4">
                                         <Label className="pdt10">Số lượng</Label>
                                     </div>
@@ -357,7 +394,7 @@ class listProducts extends Component {
                                         <Input required invalid={this.state.quantity !== "" ? false : true} valid={this.state.quantity !== "" ? true : false} type="number" onChange={this.onChangeData} name="quantity" id="quantity" placeholder="Số lượng" value={this.state.quantity} />
                                     </div>
                                 </Row>
-                                <Row className="col-4">
+                                <Row className="col-sm-12 col-md-4">
                                     <div className="col-4">
                                         <Label className="pdt10">Đơn giá</Label>
                                     </div>
@@ -368,7 +405,7 @@ class listProducts extends Component {
 
                             </FormGroup>
                             <FormGroup row>
-                                <Row className="col-4">
+                                <Row className="col-sm-12 col-md-4">
                                     <div className="col-4">
                                         <Label className="pdt10">Cấp 1</Label>
                                     </div>
@@ -384,7 +421,7 @@ class listProducts extends Component {
                                         </Input>
                                     </div>
                                 </Row>
-                                <Row className="col-4">
+                                <Row className="col-sm-12 col-md-4">
                                     <div className="col-4">
                                         <Label className="pdt10">Cấp 2</Label>
                                     </div>
@@ -397,7 +434,7 @@ class listProducts extends Component {
                                         </Input>
                                     </div>
                                 </Row>
-                                <Row className="col-4">
+                                <Row className="col-sm-12 col-md-4">
                                     <div className="col-4">
                                         <Label className="pdt10">Cấp 3</Label>
                                     </div>
@@ -413,19 +450,61 @@ class listProducts extends Component {
                                 </Row>
                             </FormGroup>
                             <FormGroup row>
-                                <Row className="col-4">
+                                <Row className="col-sm-12 col-md-4">
                                     <div className="col-4">
-                                        <Label className="pdt10">Mô tả</Label>
+                                        <Label className="pdt10">Discount</Label>
                                     </div>
                                     <div className="col-8 " >
-                                        <Input invalid={this.state.description !== "" ? false : true} valid={this.state.description !== "" ? true : false} value={this.state.description} required type="textarea" name="description" id="description" onChange={this.onChangeData} />
+                                        <Input required invalid={this.state.discount !== "" ? false : true} valid={this.state.discount !== "" ? true : false} type="number" onChange={this.onChangeData} name="discount" id="discount" placeholder="discount" value={this.state.discount} />
                                     </div>
                                 </Row>
-                                <Row className="col-4">
-                                    <div className="col-4">
+                            </FormGroup>
+                            <FormGroup row>
+                                <Row className="col-sm-12 col-md-8">
+                                    <div className="col-sm-4 col-md-2">
+                                        <Label className="pdt10">Mô tả</Label>
+                                    </div>
+                                    <div className="col-sm-8 col-md-10 flex pdl10" >
+                                        <div className="editorDescription">
+                                            {/*
+                                        <ReactQuill theme="snow" modules={this.modules}
+                                        formats={this.formats} onChange={this.rteChange}
+                                        value={this.state.description} />
+                                        */}
+                                            <CKEditor
+
+                                                editor={ClassicEditor}
+                                                data={this.state.description}
+                                                onInit={editor => {
+                                                    // You can store the "editor" and use when it is needed.
+                                                    // console.log('Editor is ready to use!', editor);
+                                                    // console.log(editor)
+                                                }}
+
+                                                onChange={(event, editor) => {
+                                                    let data = editor.getData();
+                                                    this.setState({ description: data })
+                                                    //console.log({ event, editor, data });
+                                                }}
+                                                onBlur={(event, editor) => {
+                                                    //console.log('Blur.', editor);
+                                                }}
+                                                onFocus={(event, editor) => {
+                                                    // console.log('Focus.', editor);
+                                                }}
+                                            />
+                                            {/*
+                                        <Input invalid={this.state.description !== "" ? false : true} valid={this.state.description !== "" ? true : false} value={this.state.description} required type="textarea" name="description" id="description" onChange={this.onChangeData} />
+
+                                        */}
+                                        </div>
+                                    </div>
+                                </Row>
+                                <Row className="col-sm-12 col-md-4 ">
+                                    <div className="col-4 ">
                                         <Label className="pdt10">Hình ảnh</Label>
                                     </div>
-                                    <div className="col-4 " >
+                                    <div className="col-3 " >
                                         <input type="file" id="file" multiple className="hide" onChange={this.onChangeImage} />
                                         <button type="button" id="btnBgStory" className="btn btn-primary " onClick={this.onClickFile}>
                                             <i className="fas fa-image"></i> Pictures </button>
@@ -467,9 +546,10 @@ class listProducts extends Component {
                     ref="gridContainer"
                     dataSource={this.state.listProducts}
                     showBorders={true}
+                    columnAutoWidth={true}
                     allowColumnReordering={true}
-                    customizeColumns={this.customizeColumns}
-                    onContentReady={this.onContentReady}
+                    height={window.innerHeight-280}
+                    columnHidingEnabled={true}
                 >
                     <Editing
                         mode="popup"
@@ -478,15 +558,15 @@ class listProducts extends Component {
                     </Editing>
                     <Paging defaultPageSize={10} />
                     <FilterRow applyFilter={'auto'} visible={true} />
-                    <Column dataField="productName" caption="Tên" dataType="string" />
-                    <Column dataField="categoryName" caption="Tên Danh mục" dataType="string" />
+                    <Column dataField="productName" caption="Tên" dataType="string"  width={340}   />
+                    <Column dataField="categoryName" caption="Tên Danh mục" dataType="string" width={150} />
                     <Column dataField="quantity" caption="Số lượng" width={100} alignment="center" dataType="string" />
-                    <Column dataField="price" caption="Đơn giá" dataType="string" />
+                    <Column dataField="price" caption="Đơn giá" dataType="string" width={150} />
                     <Column dataField="created_at" caption="Ngày tạo" dataType="date" format='dd/MM/yyyy HH:mm:ss' width={150} />
                     <Column dataField="rate" caption="Đánh giá" cellRender={this.cellRenderRating} width={150} alignment="center" />
-                    <Column dataField="sale" caption="Discount (%)" width={100} alignment="center" dataType="string" />
+                    <Column dataField="discount" caption="Discount (%)" width={100} alignment="center" dataType="string" />
                     <Column dataField="image" caption="Hình ảnh" cellRender={this.cellRenderImage} alignment="center" width={100} />
-                    <Column dataField="" cellRender={this.cellRender} width={300} />
+                    <Column dataField="none" cellRender={this.cellRender} />
                 </DataGrid>
 
             </div>

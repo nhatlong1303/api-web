@@ -13,6 +13,8 @@ import './style/navigation.css';
 import './style/scrollTop.css';
 import './style/shimer.css';
 import './style/menu.css';
+import 'react-quill/dist/quill.snow.css';
+import 'react-quill/dist/quill.bubble.css';
 import 'rc-menu/assets/index.css';
 import 'devextreme/dist/css/dx.common.css';
 import 'devextreme/dist/css/dx.light.css';

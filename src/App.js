@@ -17,7 +17,7 @@ import CommonMenuParent from './components/home/menu';
 class App extends Component {
   constructor(props) {
     super(props)
-
+    document.title = "API-WEB"
     history.listen((location, action) => {
       // console.log("Hello Khanh");
       // console.log(location);
@@ -28,7 +28,7 @@ class App extends Component {
     });
     this.state = {
       listCategoryLV0: [],
-      listCategoryAll:[]
+      listCategoryAll: []
     }
     localStorage.removeItem('reload');
   }
@@ -41,6 +41,14 @@ class App extends Component {
   componentDidMount() {
     this.getCateGoryLV0();
     this.getCateGoryAll();
+  }
+  componentDidUpdate(nextProps) {
+    if(this.props.isLoading){
+      this.getCateGoryAll();
+      this.getCateGoryLV0();
+      this.props.HomeActions.isLoading(false)
+    }
+   
   }
   getCateGoryLV0 = () => {
     let param = {
@@ -106,6 +114,7 @@ class App extends Component {
 }
 const mapStateToProps = (state) => {
   return {
+    isLoading: state.home.isLoading,
   }
 }
 const mapDispatchToProps = (dispatch) => {
