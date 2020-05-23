@@ -3,28 +3,21 @@ import Api from '../services/api';
 
 export function categoryLV0(param, cb) {
     return (dispatch) => {
-        Api.post('/category', param)
-            .then(result => {
-                if (result && result.code === 200) {
-                    if (cb) cb(null, result.data);
-                } else {
-                    if (cb) cb(result.data, null);
-                }
-            });
+        global.db.collection('category').where('categoryParent', '==', '0').get().then((querySnapshot) => {
+            if (cb) cb(null, querySnapshot.docs);
+        }).catch(function (error) {
+            if (cb) cb(null, null);
+        });
     };
 }
 export function categoryAll(param, cb) {
     return (dispatch) => {
-        Api.post('/categoryAll', param)
-            .then(result => {
-                if (result && result.code === 200) {
-                    if (cb) cb(null, result.data);
-                    dispatch(listCategoryAll(result.data))
-                } else {
-                    if (cb) cb(result.data, null);
-                    dispatch(listCategoryAll(result.data))
-                }
-            });
+        global.db.collection('category').get().then((querySnapshot) => {
+            if (cb) cb(null, querySnapshot.docs);
+            dispatch(listCategoryAll(querySnapshot.docs))
+        }).catch(function (error) {
+            if (cb) cb(null, null);
+        });
     };
 }
 function listCategoryAll(data) {
@@ -36,14 +29,27 @@ function listCategoryAll(data) {
 
 export function products(param, cb) {
     return (dispatch) => {
-        Api.post('/products/category', param)
-            .then(result => {
-                if (result && result.code === 200) {
-                    if (cb) cb(null, result.data);
-                } else {
-                    if (cb) cb(result.data, null);
-                }
+        if (param.Level3 !== undefined) {
+            global.db.collection('products').where('Level1', '==', param.Level1).where('Level2', '==', param.Level2).where('Level3', '==', param.Level3).get().then((querySnapshot) => {
+                if (cb) cb(null, querySnapshot.docs);
+            }).catch(function (error) {
+                if (cb) cb(null, null);
             });
+        } else if (param.Level2 !== undefined) {
+            global.db.collection('products').where('Level1', '==', param.Level1).where('Level2', '==', param.Level2).get().then((querySnapshot) => {
+                if (cb) cb(null, querySnapshot.docs);
+            }).catch(function (error) {
+                if (cb) cb(null, null);
+            });
+        } else {
+            global.db.collection('products').where('Level1', '==', param.Level1).get().then((querySnapshot) => {
+                if (cb) cb(null, querySnapshot.docs);
+            }).catch(function (error) {
+                if (cb) cb(null, null);
+            });
+        }
+
+
     };
 }
 export function isLoading(bool) {

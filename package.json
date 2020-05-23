@@ -12,6 +12,7 @@
     "css-animation": "^2.0.4",
     "devextreme": "^19.2.7",
     "devextreme-react": "^19.2.7",
+    "firebase": "^7.14.5",
     "history": "^4.10.1",
     "moment": "^2.24.0",
     "rc-menu": "^8.0.2",

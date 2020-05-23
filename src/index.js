@@ -19,12 +19,19 @@ import 'rc-menu/assets/index.css';
 import 'devextreme/dist/css/dx.common.css';
 import 'devextreme/dist/css/dx.light.css';
 import logger from 'redux-logger';
+import firebase from 'firebase';
+firebase.initializeApp({
+    apiKey: 'AIzaSyCNUtAfUb6_TrISy5YS3W_fhlHabYJtrjw',
+    authDomain: 'taka-6cbe5.firebaseapp.com',
+    projectId: 'taka-6cbe5'
+});
+global.db = firebase.firestore();
 var moment = require('moment');
 moment.locale('vi');
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
     appReducers,
-    composeEnhancer(applyMiddleware(thunk,logger)),
+    composeEnhancer(applyMiddleware(thunk, logger)),
 )
 ReactDOM.render(
     <Provider store={store}>

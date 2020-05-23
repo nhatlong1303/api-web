@@ -57,7 +57,7 @@ class App extends Component {
     this.props.HomeActions.categoryLV0(param, (error, data) => {
       if (data) {
         this.setState({
-          listCategoryLV0: data.category
+          listCategoryLV0: data
         })
       } else {
         console.log(error)
@@ -68,7 +68,7 @@ class App extends Component {
     this.props.HomeActions.categoryAll(null, (error, data) => {
       if (data) {
         this.setState({
-          listCategoryAll: data.category
+          listCategoryAll: data
         })
       } else {
         console.log(error)
